@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
-    self, associated_token::AssociatedToken, token_2022::transfer_checked, token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked}
+    self, associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked, transfer_checked}
 };
 
 use crate::state::Escrow;
@@ -46,7 +46,7 @@ impl<'info> Make<'info> {
     pub fn init_escrow(&mut self, seed: u64, receive_amount: u64, bump: &MakeBumps) -> Result<()> {
         self.escrow.set_inner(Escrow {
             seed,
-            maker: self.maker.key(),
+            maker: self.maker.key(), //public key
             mint_a: self.mint_a.key(),
             mint_b: self.mint_b.key(),
             receive_amount,
