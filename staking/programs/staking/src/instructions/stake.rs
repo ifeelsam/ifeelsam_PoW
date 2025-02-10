@@ -24,6 +24,7 @@ pub struct Stake<'info> {
         associated_token::authority = user
     )]
     pub nft_mint_ata: Account<'info, TokenAccount>,
+
     pub collection_mint: Account<'info, Mint>,
 
     #[account(
@@ -50,6 +51,7 @@ pub struct Stake<'info> {
         seeds::program = metadata_program.key(),    
     )]
     pub edition: Account<'info, MasterEditionAccount>,
+
     #[account(
         seeds = [b"config".as_ref()],
         bump = config.bump
@@ -59,7 +61,7 @@ pub struct Stake<'info> {
     #[account(
         init,
         payer = user,
-        seeds= [b"stake_account", nft_mint.key().as_ref(),  ],
+        seeds= [b"stake_account", nft_mint.key().as_ref()],
         space = StakeAccounts::INIT_SPACE + 8, 
         bump
     )]
@@ -100,34 +102,39 @@ impl <'info> Stake<'info>  {
         approve(cpi_ctx, 1)?;
         
 
-        let cpi_program = &self.metadata_program.to_account_info();
+        let cpi_program = &self.metadata.to_account_info();
         let cpi_accounts = FreezeDelegatedAccountCpiAccounts {
                 delegate : &self.stake_account.to_account_info(),
                 token_account: &self.nft_mint_ata.to_account_info(),    
                 edition: &self.edition.to_account_info(),
                 mint: &self.nft_mint.to_account_info(),
                 token_program: &self.token_program.to_account_info()
-            };
-
-        let nft_mint_info = self.nft_mint.to_account_info();
-        let config_info = self.config.to_account_info();
+        };
 
         let seeds = &[
             b"stake_account", 
-            nft_mint_info.key.as_ref(),
-            config_info.key.as_ref(),
+            self.config.to_account_info().key.as_ref(),
+            self.nft_mint.to_account_info().key.as_ref(),
             &[self.stake_account.bump]
         ];
         let signed_seeds = &[&seeds[..]];
-
 
         FreezeDelegatedAccountCpi::new(
             cpi_program,
             cpi_accounts
         ).invoke_signed(signed_seeds)?;
 
+        self.stake_account.set_inner(StakeAccounts { 
+            owner: self.user.key(),
+            nft_mint: self.nft_mint.key(),
+            staked_at: Clock::get()?.unix_timestamp,
+            bump: bumps.stake_account
+        });
 
+        self.user_account.amount_staked += 1;
         Ok(())
 
     }
+
+
 }

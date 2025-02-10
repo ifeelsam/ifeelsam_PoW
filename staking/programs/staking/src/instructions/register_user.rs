@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{user_account, UserAccount};
+use crate::UserAccount;
 
 #[derive(Accounts)]
 pub struct RegisterUser<'info> {
