@@ -1,4 +1,4 @@
-use crate::error::MarketplaceError;
+use crate::error::ListingError;
 use crate::state::{ Escrow, ListingAccount, ListingStatus, MarketPlace, UserAccount };
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::{ program::invoke, system_instruction };
@@ -12,9 +12,16 @@ pub struct Purchase<'info> {
     #[account(
         mut,
         seeds = [b"user_account", buyer.key().as_ref()],
-        bump = buyer_user_account.bump
+        bump = buyer_account.bump
     )]
-    pub buyer_user_account: Account<'info, UserAccount>,
+    pub buyer_account: Account<'info, UserAccount>,
+
+    #[account(
+        mut,
+        seeds = [b"user_account", listing.owner.as_ref()],
+        bump = seller_account.bump
+    )]
+    pub seller_account: Account<'info, UserAccount>, // Seller stats account
 
     #[account(seeds = [b"marketplace", marketplace.authority.as_ref()], bump = marketplace.bump)]
     pub marketplace: Account<'info, MarketPlace>,
@@ -53,6 +60,11 @@ impl<'info> Purchase<'info> {
     pub fn purchase(&mut self) -> Result<()> {
         let sale_amount = self.listing.listing_price;
 
+        require!(
+            matches!(self.listing.status, ListingStatus::Active),
+            ListingError::ListingNotActive
+        );
+
         let transfer_instruction = system_instruction::transfer(
             self.buyer.key,
             self.escrow.to_account_info().key,
@@ -77,7 +89,10 @@ impl<'info> Purchase<'info> {
         // mark the listing as Sold so it can no longer be purchased.
         self.listing.status = ListingStatus::Sold;
 
-        self.buyer_user_account.nft_bought += 1;
+        self.buyer_account.nft_bought += 1;
+        self.seller_account.nft_sold += 1;
+        self.seller_account.nft_listed -= 1;
+        // self.buyer_account.nft_listed += 1;
         // self.buyer_user_account.nft_bought = self
         //     .buyer_user_account
         //     .nft_bought

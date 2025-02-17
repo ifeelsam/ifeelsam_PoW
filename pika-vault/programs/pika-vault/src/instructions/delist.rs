@@ -4,7 +4,7 @@ use anchor_spl::{
     token_interface::{ transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked },
 };
 
-use crate::{ marketplace, ListingAccount, ListingStatus, MarketPlace, UserAccount };
+use crate::{ ListingAccount, ListingStatus, MarketPlace, UserAccount };
 
 #[derive(Accounts)]
 pub struct Delist<'info> {

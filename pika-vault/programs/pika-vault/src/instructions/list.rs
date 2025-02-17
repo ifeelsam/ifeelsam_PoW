@@ -131,7 +131,8 @@ impl<'info> List<'info> {
         let cpi_ctx = CpiContext::new(cpi_programs, cpi_account);
         mint_to(cpi_ctx, 1)?;
 
-        let creators = vec![Creator {
+        let creators =
+            vec![Creator {
             address: self.maker.key(),
             verified: true,
             share: 100,

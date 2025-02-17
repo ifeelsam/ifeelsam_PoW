@@ -14,7 +14,6 @@ import { assert } from "chai";
 import {
     TOKEN_PROGRAM_ID,
     createMint,
-    ASSOCIATED_TOKEN_PROGRAM_ID,
     getAssociatedTokenAddress,
     getAccount,
 } from "@solana/spl-token";
@@ -46,6 +45,7 @@ describe("pika-vault testing", () => {
         [Buffer.from("marketplace"), admin.publicKey.toBuffer()],
         program.programId
     );
+
     it("Airdrop for nft", async () => {
         await Promise.all(
             [user].map(async (k) => {
@@ -281,79 +281,122 @@ describe("pika-vault testing", () => {
         assert.equal(updatedUserAccount.nftListed.toNumber(), 1);
     });
 
-    it("Delists an NFT", async () => {
-        const listingAccount = await program.account.listingAccount.fetch(
-            listing
-        );
+    const buyer = Keypair.generate();
 
-        // check if NFT is currently listed
-        assert.deepEqual(listingAccount.status, { active: {} });
+    const provider = anchor.AnchorProvider.env();
+    anchor.setProvider(provider);
+    const connection = provider.connection;
 
-        // owner's token account balance before delisting
-        const ownerAtaBefore = await getAssociatedTokenAddress(
-            nftMint,
-            user.publicKey
-        );
+    let buyerUserAccount: PublicKey;
+    let buyerUserAccountBump: number;
 
-        // The owner ATA might not exist yet if they never received the token back
-        let ownerAtaBalanceBefore = 0;
-        try {
-            const tokenAccount = await getAccount(
-                anchor.getProvider().connection,
-                ownerAtaBefore
-            );
-            ownerAtaBalanceBefore = Number(tokenAccount.amount);
-        } catch (e) {
-            // ATA doesn't exist yet
-            console.error("ata doesn't exist:", e);
-        }
+    [buyerUserAccount, buyerUserAccountBump] = PublicKey.findProgramAddressSync(
+        [Buffer.from("user_account"), buyer.publicKey.toBuffer()],
+        program.programId
+    );
 
-        // check vault balance before delisting
-        const vaultAccount = await getAccount(
-            anchor.getProvider().connection,
-            vault
-        );
-        assert.equal(vaultAccount.amount.toString(), new BN(1).toString());
-
-        await program.methods
-            .delist()
-            .accountsStrict({
-                owner: user.publicKey,
-                userAccount: userAccountPDA,
-                marketplace,
-                nftMint,
-                ownerAta: ownerAtaBefore,
-                vault,
-                listing,
-                tokenProgram: TOKEN_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
+    it("Airdrop for buyer", async () => {
+        await Promise.all(
+            [buyer].map(async (k) => {
+                return await anchor
+                    .getProvider()
+                    .connection.requestAirdrop(
+                        k.publicKey,
+                        100 * LAMPORTS_PER_SOL
+                    )
+                    .then(confirmTx);
             })
-            .signers([user])
+        );
+    });
+
+    it("Registers a buyer", async () => {
+        await program.methods
+            .registerUser()
+            .accounts({
+                user: buyer.publicKey,
+            })
+            .signers([buyer])
             .rpc();
 
-        const ownerAtaAfter = await getAccount(
-            anchor.getProvider().connection,
-            ownerAtaBefore
+        const userAccount = await program.account.userAccount.fetch(
+            buyerUserAccount
         );
         assert.equal(
-            ownerAtaAfter.amount,
-            BigInt(ownerAtaBalanceBefore + 1),
-            "error deliting: transfer back to owner"
+            userAccount.authority.toString(),
+            buyer.publicKey.toString(),
+            `Authority check failed`
+        );
+        assert.equal(
+            userAccount.nftSold.toNumber(),
+            0,
+            `NFT Sold check failed!`
+        );
+        assert.equal(
+            userAccount.nftBought.toNumber(),
+            0,
+            `NFT Bought check failed!`
+        );
+        assert.equal(
+            userAccount.nftListed.toNumber(),
+            0,
+            `NFT Listed check failed!`
+        );
+        assert.equal(
+            userAccount.bump,
+            buyerUserAccountBump,
+            `Bump check failed!`
+        );
+    });
+
+    it("Allows a buyer to purchase the NFT", async () => {
+        let escrow: PublicKey;
+        [escrow] = PublicKey.findProgramAddressSync(
+            [Buffer.from("escrow"), listing.toBuffer()],
+            program.programId
         );
 
-        try {
-            await program.account.listingAccount.fetch(listing);
-            assert.fail("Listing account should be closed");
-        } catch (e) {
-            // console.error("error delisting NFT:", e);
-        }
+        const buyerBalanceBefore = await connection.getBalance(buyer.publicKey);
+        await program.methods
+            .purchase()
+            .accountsStrict({
+                buyer: buyer.publicKey,
+                buyerAccount: buyerUserAccount,
+                marketplace: marketplacePDA,
+                listing: listing,
+                escrow: escrow,
+                nftMint: nftMint,
+                vault: vault,
+                sellerAccount: userAccountPDA,
+                systemProgram: SystemProgram.programId,
+            })
+            .signers([buyer])
+            .rpc();
 
-        // Verify user stats were updated
-        const updatedUserAccount = await program.account.userAccount.fetch(
-            userAccountPDA
+        const updatedListing = await program.account.listingAccount.fetch(
+            listing
         );
-        assert.equal(updatedUserAccount.nftListed.toNumber(), 0);
+        assert.notDeepEqual(updatedListing.status, { active: {} });
+
+        const escrowAccount = await program.account.escrow.fetch(escrow);
+        assert.equal(
+            escrowAccount.saleAmount.toString(),
+            LAMPORTS_PER_SOL.toString()
+        );
+        assert.equal(
+            escrowAccount.buyer.toString(),
+            buyer.publicKey.toString()
+        );
+        const buyerUser = await program.account.userAccount.fetch(
+            buyerUserAccount
+        );
+        assert.equal(buyerUser.nftBought.toNumber(), 1);
+
+        // Check that buyer's lamport balance decreased by at least the sale amount.
+        const buyerBalanceAfter = await connection.getBalance(buyer.publicKey);
+        assert(
+            buyerBalanceBefore - buyerBalanceAfter >= LAMPORTS_PER_SOL,
+            "Buyer lamports did not decrease appropriately"
+        );
     });
 });
 
