@@ -72,7 +72,7 @@ describe('dice-game', () => {
                 vault: vault,
                 bet: bet,
                 systemProgram: SystemProgram.programId,
-            } as any)
+            }as any)
             .signers([player])
             .rpc()
             .then(confirmTx)

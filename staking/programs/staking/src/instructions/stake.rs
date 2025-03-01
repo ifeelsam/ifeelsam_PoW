@@ -100,15 +100,14 @@ impl <'info> Stake<'info>  {
 
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         approve(cpi_ctx, 1)?;
-        
 
         let cpi_program = &self.metadata.to_account_info();
         let cpi_accounts = FreezeDelegatedAccountCpiAccounts {
-                delegate : &self.stake_account.to_account_info(),
-                token_account: &self.nft_mint_ata.to_account_info(),    
-                edition: &self.edition.to_account_info(),
-                mint: &self.nft_mint.to_account_info(),
-                token_program: &self.token_program.to_account_info()
+            delegate : &self.stake_account.to_account_info(),
+            token_account: &self.nft_mint_ata.to_account_info(),    
+            edition: &self.edition.to_account_info(),
+            mint: &self.nft_mint.to_account_info(),
+            token_program: &self.token_program.to_account_info()
         };
 
         let seeds = &[
