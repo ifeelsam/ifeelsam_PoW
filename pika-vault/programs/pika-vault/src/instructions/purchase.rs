@@ -1,8 +1,8 @@
 use crate::error::ListingError;
-use crate::state::{ Escrow, ListingAccount, ListingStatus, MarketPlace, UserAccount };
+use crate::state::{Escrow, ListingAccount, ListingStatus, MarketPlace, UserAccount};
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::{ program::invoke, system_instruction };
-use anchor_spl::token::{ Mint, TokenAccount };
+use anchor_lang::solana_program::{program::invoke, system_instruction};
+use anchor_spl::token::Mint;
 
 #[derive(Accounts)]
 pub struct Purchase<'info> {
@@ -46,13 +46,6 @@ pub struct Purchase<'info> {
 
     pub nft_mint: Account<'info, Mint>,
 
-    #[account(
-        mut,
-        associated_token::mint = nft_mint,
-        associated_token::authority = listing
-    )]
-    pub vault: Account<'info, TokenAccount>,
-
     pub system_program: Program<'info, System>,
 }
 
@@ -68,7 +61,7 @@ impl<'info> Purchase<'info> {
         let transfer_instruction = system_instruction::transfer(
             self.buyer.key,
             self.escrow.to_account_info().key,
-            sale_amount
+            sale_amount,
         );
         invoke(
             &transfer_instruction,
@@ -76,7 +69,7 @@ impl<'info> Purchase<'info> {
                 self.buyer.to_account_info(),
                 self.escrow.to_account_info(),
                 self.system_program.to_account_info(),
-            ]
+            ],
         )?;
 
         self.escrow.seller = self.listing.owner;
