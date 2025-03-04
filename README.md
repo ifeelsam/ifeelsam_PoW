@@ -1,4 +1,17 @@
-# Builder_ifeelsam PoW <span style="float: right; margin-left: 10px;"><a href="https://twitter.com/ifeelsam" target="_blank"><img src="https://cdn.edaquest.com/twitter-icon.svg" alt="Twitter" width="28" height="28"></a></span>
+<table width="100%">
+  <tr>
+    <td align="left">
+      <h1>Builder_ifeelsam PoW</h1>
+    </td>
+    <td align="right">
+      <a href="https://twitter.com/ifeelsam" target="_blank">
+        <img src="https://cdn.edaquest.com/twitter-icon.svg" alt="Twitter" width="28" height="28">
+      </a>
+    </td>
+  </tr>
+</table>
+
+<!-- # Builder_ifeelsam PoW <span style="float: right;  margin-left: 10px;"><a href="https://twitter.com/ifeelsam" target="_blank"><img src="https://cdn.edaquest.com/twitter-icon.svg" alt="Twitter" width="28" height="28"></a></span> -->
 
 Hi, I'm Sam. This repository is my proof-of-work in smart contract development on Solana Turbin3. It features a variety of on-chain programs built with the Anchor framework. Among these projects, [PikaVault](https://github.com/solana-turbin3/Q1_25_Builder_ifeelsam/tree/main/pika-vault) is my capstone project.
 
