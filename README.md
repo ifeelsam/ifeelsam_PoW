@@ -4,38 +4,38 @@ Hi, I'm Sam. This repository is my proof-of-work in smart contract development o
 
 ## Capstone Project
 
-- **[PikaVault](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/pika-vault)**  
+- **[PikaVault](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/pika-vault)**
   A robust vault offering enhanced security features and innovative asset management techniques.
 
 ## Projects
 
-- **[Automated Market Maker (AMM)](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/amm)**  
+- **[Automated Market Maker (AMM)](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/amm)**
   An AMM contract for managing liquidity, deposits, swaps, and withdrawals.
 
-- **[Anchor Escrow Contract](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/anchor-escrow)**  
+- **[Anchor Escrow Contract](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/anchor-escrow)**  
   A contract that secures token transfers until specified conditions are met.
 
-- **[Anchor Vault Contract](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/anchor-vault)**  
+- **[Anchor Vault Contract](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/anchor-vault)**  
   Provides secure token storage and on-chain asset management.
 
-- **[Dice Game Contract](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/dice-game)**  
+- **[Dice Game Contract](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/dice-game)**  
   Implements an on-chain dice betting game for interactive play.
 
-- **[Decentralized Marketplace Contract](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/marketplace)**  
+- **[Decentralized Marketplace Contract](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/marketplace)**  
   A decentralized marketplace for listing, purchasing, and managing digital assets.
 
-- **[Solana Starter Kit](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/solana-starter)**  
+- **[Solana Starter Kit](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/solana-starter)**  
   A starter kit offering a basic structure and essential utilities for deploying Solana smart contracts.
 
-- **[Staking Contract](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/staking)**  
+- **[Staking Contract](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/staking)**  
   Enables users to lock tokens and earn rewards.
 
 ## Prerequisites
 
-- **[Rust Prerequisites](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/rust_prereq)**  
+- **[Rust Prerequisites](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/rust_prereq)**  
   Contains supporting Rust modules and helper functions utilized across programs.
 
-- **[TypeScript Prerequisites](https://github.com/solana-turbin3/ifeelsam_PoW/tree/main/ts_prereq)**  
+- **[TypeScript Prerequisites](https://github.com/ifeelsam/ifeelsam_PoW/tree/main/ts_prereq)**  
   Provides TypeScript utilities and configuration files for interacting with the on-chain programs.
 
 <!-- ## Getting Started
